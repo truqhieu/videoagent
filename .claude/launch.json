@@ -1,0 +1,21 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vcb-mvp",
+      "runtimeExecutable": "uv",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "mvp",
+        "uvicorn",
+        "main:app",
+        "--app-dir",
+        "mvp/server",
+        "--port",
+        "8787"
+      ],
+      "port": 8787
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+# OS / editor
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+mvp/.venv/
+
+# MVP runtime output & secrets (template: mvp/local-secrets.example.json)
+mvp/media/
+mvp/data/jobs/
+mvp/local-secrets.json
+.env
+.env.*
+
+# Raw VCB footage & CapCut projects: too large for git, keep on NAS / Drive
+Tài Nguyên VCB Real Sample/
+mock_data/*.mp4
+mock_data/*.wav
