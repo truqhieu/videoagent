@@ -2,6 +2,7 @@
 
 Outputs (in the session scratchpad passed as argv[1]):
   tagging/batch_<n>.md       - catalog tagging batches WITH filename hints (production mode)
+  tagging/segments_<n>.md    - long-clip candidates: ONE batch sheet (6 candidates x 2 frames) per AI call
   bench/tagging_gold.md      - 12-clip gold set WITHOUT filename hints (vision-only test)
   bench/gold_truth.json      - ground truth for the gold set (never shown to models)
 """
@@ -62,6 +63,28 @@ GOLD = {  # id -> ground truth (from verified file names / folders / manual chec
 }
 
 
+SEGMENT_SCHEMA = """## Output JSON cho MỖI ứng viên (không cần best_moment/usable: code đã tính)
+{"id": "...", "roles": [{"role": "...", "conf": 0.9}], "craft_step": "... hoặc null", "craft_step_conf": 0.8,
+ "shot_size": "...", "camera": "...", "subject": ["..."], "huyk_present": true/false, "person_speaking_to_camera": true/false,
+ "product_visible": true/false, "product_type": "...", "metal": "...", "stone_color": ["..."], "lighting": "...",
+ "text_or_watermark": "...", "motion_level": 2, "aesthetic": 4, "description_vi": "≤ 30 từ", "keywords_vi": ["..."]}
+"""
+
+
+def segment_batch_prompt(sheet: str, segs: list[dict], out_hint: str) -> str:
+    """One AI call labels up to 6 candidate windows cut from the same long take (docs 03 §3.1)."""
+    first = segs[0]
+    lines = "\n".join(f"- id={s['id']} · mã trên ảnh={s['id'].rsplit('_', 1)[1].upper()} · đoạn gốc "
+                      f"{s['source_range'][0]}–{s['source_range'][1]}s" for s in segs)
+    return (INTRO.replace("Mỗi clip có 1 contact sheet 12 frame (4×3, mốc thời gian in góc trên trái).",
+                          "Contact sheet dưới đây gồm NHIỀU ứng viên cắt từ CÙNG một clip dài: các ô liền nhau cùng mã là cùng một ứng viên, "
+                          "xếp theo thời gian (một ô là khoảnh khắc đẹp nhất); mã ứng viên + mốc giây in góc trên trái.")
+            + f"Gợi ý từ tên file gốc (cả clip dài, có thể chứa nhiều công đoạn): file=\"{first.get('name', '')}\" · "
+              f"parsed_sku={first.get('parsed', {}).get('sku')} · parsed_step={first.get('parsed', {}).get('craft_step')}\n"
+              "Gắn nhãn TỪNG ứng viên độc lập theo hình của chính nó.\n\n"
+            + TAXONOMY + SEGMENT_SCHEMA + f"\n## Sheet: {sheet}\n## Ứng viên\n{lines}\n\n{out_hint}\n")
+
+
 def clip_line(e, with_hints):
     base = f"- id={e['id']} · sheet={MVP / e['sheet']} · duration={e['tech']['duration']}s"
     if not with_hints:
@@ -77,6 +100,14 @@ def main():
     (OUT / "bench").mkdir(parents=True, exist_ok=True)
     tags_dir = MVP / "data" / "tags"
     tags_dir.mkdir(parents=True, exist_ok=True)
+    segs = [e for e in index if e.get("parent_id")]
+    index = [e for e in index if not e.get("parent_id")]
+    by_sheet = {}
+    for e in segs:
+        by_sheet.setdefault(e["sheet"], []).append(e)
+    for n, (sheet, group) in enumerate(by_sheet.items(), 1):
+        hint = f"Ghi MỖI ứng viên ra 1 file: {tags_dir}/<id>.json (chỉ JSON, UTF-8)."
+        (OUT / "tagging" / f"segments_{n}.md").write_text(segment_batch_prompt(str(MVP / sheet), group, hint), encoding="utf-8")
     batches = [index[i:i + 10] for i in range(0, len(index), 10)]
     for n, batch in enumerate(batches, 1):
         body = (INTRO + "Gợi ý từ tên file/thư mục là quy chuẩn NAS của khách (thường đúng, nhưng hãy kiểm bằng hình).\n\n"
@@ -89,7 +120,7 @@ def main():
             + "\n\nGhi KẾT QUẢ thành 1 file JSON array (mỗi phần tử là object clip ở trên) tại đường dẫn được giao.\n")
     (OUT / "bench" / "tagging_gold.md").write_text(body, encoding="utf-8")
     (OUT / "bench" / "gold_truth.json").write_text(json.dumps(GOLD, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"{len(batches)} catalog batches, {len(gold)} gold clips")
+    print(f"{len(batches)} catalog batches, {len(by_sheet)} long-clip segment batches, {len(gold)} gold clips")
 
 
 if __name__ == "__main__":

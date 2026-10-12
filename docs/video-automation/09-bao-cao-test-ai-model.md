@@ -8,6 +8,8 @@
 | Hoạt động | Đề xuất | Lý do | Rẻ hơn (đánh đổi) |
 |---|---|---|---|
 | Gắn nhãn footage mới (Media Hub) | **Claude Haiku 5.5** | Test thật: vai trò 100%, công đoạn 89% (100% trong ±1 bước), HuyK 100% · ~$0,5/1.000 clip | Gemini 2.5 Flash-Lite (~$0,46/1.000 clip, **chưa test**) |
+| Gắn nhãn ứng viên từ clip dài 4K (theo lô, 6 cảnh / ảnh) | **Claude Haiku 5.5** | Test thật trên clip 2:50 (12 công đoạn, không gợi ý tên file): công đoạn 41% đúng / 71% ±1 bước; nhãn `conf ≥ 0,55` đúng 5/7 · ≈ $0,003 / clip (03 §3.2) | 4 khung / ứng viên (gấp đôi chi phí) |
+| Chấm điểm / định tuyến cảnh bằng xác suất (tùy chọn) | **Jev** (TypeSafe AI) trên mô tả chữ | Trả xác suất `noul`/`choice`/`score`, $0,042/1M token vào, 70–500 ms (hãng công bố); chỉ đọc chữ, cần pilot (03 §3.2) | Trọng số tay hiện tại (0đ) |
 | Lập kế hoạch kịch bản → phần video | **Claude Opus 5.5** | Giám khảo mù: 8,3/10 (Sonnet 7,2 · Haiku 7,0); chênh chỉ ~$0,08/video so với Sonnet | Sonnet 5.5 ($0,032/video) · Haiku 5.5 ($0,0016/video, phân vai kém hơn) |
 | Lồng tiếng VO | **ElevenLabs eleven_v4 + clone giọng HuyK** | **Test thật:** WER 0,5% tiếng Việt, audio tag cảm xúc hoạt động, ~10s cho kịch bản 45s | Flash v2.5 / v4 Turbo (½ giá) — cần nghe thử mù |
 | Phiên âm / kiểm phụ đề | ElevenLabs Scribe v2 | $0,22/giờ, có word timestamps, tiếng Việt tốt | Whisper large-v3 tự host |

@@ -40,6 +40,9 @@ def main():
         tags = json.loads(tag_path.read_text(encoding="utf-8")) if tag_path.exists() else {}
         p = e["parsed"]
         use_filename = p.get("craft_step") and p.get("parse_confidence", 0) >= 0.75
+        # a long take can hold several steps: for its segments a confident AI step overrides the file name
+        if e.get("parent_id") and tags.get("craft_step") and tags.get("craft_step_conf", 0) >= 0.7:
+            use_filename = False
         step = p["craft_step"] if use_filename else (tags.get("craft_step") if tags.get("craft_step_conf", 0) >= 0.5 else None)
         e["craft_step"] = step if step in CRAFT_STEPS else None   # never trust an AI value outside the taxonomy
         e["craft_step_source"] = "filename" if use_filename else ("ai" if step else None)
@@ -52,7 +55,8 @@ def main():
         if hi - lo < 1.0:
             lo, hi = 0.0, dur
         e["usable"] = [round(lo, 2), round(hi, 2)]
-        e["best_moment_s"] = min(max(float(tags.get("best_moment_s", (lo + hi) / 2) or 0), lo), hi)
+        default_best = e.get("best_moment_s", (lo + hi) / 2)      # long-clip segments: computed from signals
+        e["best_moment_s"] = min(max(float(tags.get("best_moment_s", default_best) or 0), lo), hi)
         e["roles"] = merge_roles(e, tags)
         e["tags"] = {k: tags.get(k) for k in ("shot_size", "camera", "subject", "huyk_present", "person_speaking_to_camera",
                                               "product_visible", "product_type", "metal", "stone_color", "lighting",

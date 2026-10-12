@@ -2,6 +2,7 @@
 
 For every source clip: ffprobe -> proxy 720x1280 SDR 30fps (tone-maps HLG, auto-rotates)
 -> thumbnail -> 12-frame contact sheet (for AI tagging) -> filename parse -> folder role hints.
+Takes longer than 30 s (e.g. raw 2-3 min 4K) go through long_clip_segmenter: one entry per kept window.
 Output: mvp/data/media-index.json. Idempotent: existing proxies/sheets are reused.
 
 Run:  python3.11 mvp/indexer/build_media_index.py
@@ -18,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[2]
 MVP = ROOT / "mvp"
 sys.path.insert(0, str(MVP / "server"))
 from footage_filename_parser import parse_filename  # noqa: E402
+from long_clip_segmenter import segment_long_clip, should_segment  # noqa: E402
 
 SAMPLE = ROOT / "Tài Nguyên VCB Real Sample"
 SOURCE_DIR = SAMPLE / "3.2 Video input (source)"
@@ -91,18 +93,39 @@ def build_stills(proxy: Path, thumb: Path, sheet: Path, duration: float):
         run(["ffmpeg", "-y", "-v", "error", "-i", str(proxy), "-vf", vf, "-frames:v", "1", "-q:v", "3", str(sheet)])
 
 
-def index_clip(path: Path) -> dict:
+def _rel(path) -> str:
+    return Path(path).relative_to(MVP).as_posix()
+
+
+def long_clip_entries(path: Path, base: dict) -> list[dict]:
+    """Long take (> LONG_CLIP_S, not talking head): one entry per kept candidate window (docs 03 §3.1)."""
+    res = segment_long_clip(path, base["id"], base["tech"], MEDIA)
+    print(f"  long clip {path.name}: {res['duration_s']}s -> {len(res['segments'])} segments, "
+          f"{res['ai_calls']} AI calls, {res['timings_s']}")
+    return [{**base, "id": s["id"], "parent_id": base["id"], "source_range": [s["in"], s["out"]], "split": s["split"],
+             "crop_x": s["crop_x"], "quality_score": s["quality"], "best_moment_s": s["best_rel"],
+             "tech": {**base["tech"], "duration": s["duration"], "width": 720, "height": 1280, "rotation": 0, "hdr": False},
+             "proxy": _rel(s["proxy"]), "thumb": _rel(s["thumb"]), "sheet": _rel(s["sheet"])} for s in res["segments"]]
+
+
+def index_clip(path: Path) -> list[dict]:
     rel = path.relative_to(ROOT).as_posix()
     cid = "c_" + hashlib.sha1(rel.encode()).hexdigest()[:8]
     code, role_hint, rights = folder_info(path)
     tech = probe(path)
+    parsed = parse_filename(path.name)
+    base = {"id": cid, "file": rel, "name": path.name, "folder": code, "role_hint": role_hint,
+            "rights": rights, "product_set": parsed["sku"], "parsed": parsed, "tech": tech}
+    split, why = should_segment(tech["duration"], parsed)
+    if split:
+        return long_clip_entries(path, base)
     proxy, thumb, sheet = (MEDIA / "proxy" / f"{cid}.mp4", MEDIA / "thumbs" / f"{cid}.jpg", MEDIA / "sheets" / f"{cid}.jpg")
     build_proxy(path, proxy, tech["hdr"])
     build_stills(proxy, thumb, sheet, tech["duration"])
-    parsed = parse_filename(path.name)
-    return {"id": cid, "file": rel, "name": path.name, "folder": code, "role_hint": role_hint,
-            "rights": rights, "product_set": parsed["sku"], "parsed": parsed, "tech": tech,
-            "proxy": f"media/proxy/{cid}.mp4", "thumb": f"media/thumbs/{cid}.jpg", "sheet": f"media/sheets/{cid}.jpg"}
+    entry = {**base, "proxy": _rel(proxy), "thumb": _rel(thumb), "sheet": _rel(sheet)}
+    if why == "talking_head_needs_asr":
+        entry["needs_sentence_split"] = True       # production: cut by ASR sentence boundaries, not by motion
+    return [entry]
 
 
 def main():
@@ -111,7 +134,7 @@ def main():
     files = sorted(p for d in (SOURCE_DIR, CAPCUT_DIR) for p in d.rglob("*") if p.suffix.lower() in VIDEO_EXT)
     print(f"indexing {len(files)} clips ...")
     with ThreadPoolExecutor(max_workers=4) as pool:
-        entries = list(pool.map(index_clip, files))
+        entries = [e for group in pool.map(index_clip, files) for e in group]
     out = MVP / "data" / "media-index.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(entries, ensure_ascii=False, indent=1), encoding="utf-8")

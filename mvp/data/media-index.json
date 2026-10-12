@@ -285,7 +285,8 @@
   },
   "proxy": "media/proxy/c_0a8d1c7d.mp4",
   "thumb": "media/thumbs/c_0a8d1c7d.jpg",
-  "sheet": "media/sheets/c_0a8d1c7d.jpg"
+  "sheet": "media/sheets/c_0a8d1c7d.jpg",
+  "needs_sentence_split": true
  },
  {
   "id": "c_63cea0c2",

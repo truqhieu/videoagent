@@ -83,15 +83,22 @@ td:first-child{color:var(--ink);font-weight:500}
 .legend-list .it i{width:30px;height:30px;border-radius:50%;background:var(--gold);color:#14120d;font:700 15px var(--mono);font-style:normal;display:grid;place-items:center}
 .legend-list b{font-size:18px}.legend-list p{font-size:15.5px;color:var(--muted);line-height:1.45}
 .cap{font-size:15px;color:var(--muted);margin-top:9px;line-height:1.42}.cap b{color:var(--ink)}
-/* calculator */
-.calc{display:grid;grid-template-columns:1.05fr 1fr;gap:26px}
-.ctrl{display:grid;gap:12px}.ctrl label{display:grid;grid-template-columns:1fr 90px;align-items:center;font-size:17px;color:var(--muted);gap:4px 14px}
-.ctrl label output{font-family:var(--mono);color:var(--ink);text-align:right}.ctrl input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--gold)}
-.res{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:start}.res .card{padding:18px 20px}.res .big{font-size:56px}.k{font-size:15px;color:var(--muted);margin-top:6px}
 .bars{display:flex;align-items:flex-end;gap:16px;height:230px}.bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end}
 .bar i{display:block;width:100%;border-radius:10px 10px 4px 4px;background:linear-gradient(180deg,var(--gold),#8a6d34)}.bar span{font-size:14px;color:var(--muted);font-family:var(--mono)}.bar b{font-family:var(--mono);font-size:17px}
 .hbar{display:grid;grid-template-columns:330px 1fr 56px;align-items:center;gap:14px;margin:8px 0;font-size:17px;color:var(--muted)}
 .hbar i{display:block;height:15px;border-radius:8px;background:linear-gradient(90deg,#8a6d34,var(--gold))}.hbar b{font-family:var(--mono);color:var(--ink);text-align:right}
+/* long-clip timeline bar */
+.lcbar{display:flex;gap:2px;height:44px;border-radius:10px;overflow:hidden;margin-top:8px}
+.lcbar i{display:block;height:100%}
+.lcbar i.k{background:var(--jade)}.lcbar i.o{background:#3d3729}.lcbar i.r{background:var(--ruby)}
+.lcbar i.d{background:repeating-linear-gradient(135deg,var(--gold) 0 6px,#6b5a33 6px 12px)}
+.lclegend{display:flex;gap:22px;margin-top:10px;font-size:15px;color:var(--muted)}
+.lclegend span::before{content:"";display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:7px;vertical-align:-2px;background:var(--c)}
+.docs{display:grid;gap:9px;margin-top:10px}
+.doc{display:grid;grid-template-columns:62px 1fr;gap:12px;align-items:baseline}
+.doc i{font:600 14px var(--mono);font-style:normal;color:var(--gold);letter-spacing:.04em}
+.doc b{display:block;font-size:17.5px;font-weight:600;line-height:1.3}
+.doc span{display:block;font-size:14.5px;color:var(--muted);line-height:1.4}
 /* chrome */
 #progress{position:fixed;left:0;top:0;height:3px;background:var(--gold);z-index:5;transition:width .3s}
 #hud{position:fixed;right:18px;bottom:14px;z-index:5;font:13px var(--mono);color:#7a7262;display:flex;gap:10px;align-items:center}
@@ -105,7 +112,7 @@ body.overview .slide.active{border-color:var(--gold)}
   @page{size:1600px 900px;margin:0}
   html,body{overflow:visible;background:var(--bg);-webkit-print-color-adjust:exact;print-color-adjust:exact}
   #stage{position:static}#deck{position:static;transform:none!important;width:1600px;height:auto}
-  .slide{display:flex!important;position:relative;width:1600px;height:900px;break-after:page;page-break-after:always;animation:none}
+  .slide,.slide.active{display:flex!important;position:relative;width:1600px;height:900px;break-after:page;page-break-after:always;animation:none!important;opacity:1;transform:none}
   #hud,#progress{display:none}
 }
 </style>
@@ -136,27 +143,10 @@ body.overview .slide.active{border-color:var(--gold)}
     <div class="grid g3" style="gap:24px">
       <div class="card" style="padding:34px;border-color:var(--gold-line)"><div class="big gold">A</div><h3 style="font-size:28px;margin:18px 0 10px">Hệ thống vận hành thế nào</h3><p>Toàn cảnh một trang · footage đi đâu · agent đọc kịch bản, chọn cảnh, lồng giọng ra sao · thiếu cảnh thì làm gì · người duyệt đứng ở đâu.</p></div>
       <div class="card" style="padding:34px;border-color:rgba(32,198,212,.5)"><div class="big" style="color:var(--cyan)">B</div><h3 style="font-size:28px;margin:18px 0 10px">MVP đã chạy được</h3><p>Ảnh chụp thật của Studio (giao diện kiểu CapCut) và giải thích <b class="ink">từng vùng, từng nút</b>: thư viện, trình phát, thuộc tính, timeline, xuất file.</p></div>
-      <div class="card" style="padding:34px;border-color:rgba(95,179,154,.45)"><div class="big jade">C</div><h3 style="font-size:28px;margin:18px 0 10px">Từ MVP đến hệ thống thật</h3><p>Việc đội dev hoàn thiện · kiến trúc · 10.000 video/tháng với đội 100 người · ngày càng thông minh · chi phí · lộ trình.</p></div>
+      <div class="card" style="padding:34px;border-color:rgba(95,179,154,.45)"><div class="big jade">C</div><h3 style="font-size:28px;margin:18px 0 10px">Từ MVP đến hệ thống thật</h3><p>Việc đội dev hoàn thiện · kiến trúc · đa thị trường · chi phí AI · lộ trình · tài liệu research &amp; kỹ thuật bàn giao.</p></div>
     </div>
   </div>
   <div class="foot"><span>VCB Video Agent</span><span class="pg"></span></div>
-</section>
-
-<!-- ================= PROBLEM ================= -->
-<section class="slide">
-  <div class="kicker">Hiện trạng</div>
-  <h1>Kho tư liệu rất giàu, nhưng <em>sức người</em> là trần công suất</h1>
-  <div class="body">
-    <div class="grid g4">
-      <div class="card"><div class="big num">1.55<span style="font-size:34px">TB</span></div><p style="margin-top:10px">Kho NAS "Thương hiệu": ~49.000 file; riêng Kim hoàn có 38.000+ video chế tác, HuyK, sản phẩm.</p></div>
-      <div class="card"><div class="big num">~60<span style="font-size:34px">ph</span></div><p style="margin-top:10px">Dựng tay một video 45–60s. Project CapCut mẫu: 33 cut, 1,8 giờ chỉnh.</p></div>
-      <div class="card"><div class="big num ruby">~76</div><p style="margin-top:10px">Editor toàn thời gian cần nếu dựng tay 10.000 video/tháng.</p></div>
-      <div class="card"><div class="big num gold">500×</div><p style="margin-top:10px">Chênh view giữa video tốt (2,9M · 2,6M · 1M) và video kém (5–6 nghìn), dù dùng <b class="ink">cùng một kho</b>.</p></div>
-    </div>
-    <div class="card" style="margin-top:20px;display:flex;gap:30px;align-items:center"><div class="serif" style="font-size:42px;color:var(--gold);white-space:nowrap">Kết luận</div>
-      <p style="font-size:22px;color:var(--ink)">Không thiếu tư liệu. Thiếu một hệ thống <b>khai thác kho theo công thức đã thắng</b>, nhân bản ra nhiều ngôn ngữ, và <b>học từ kết quả</b> để lần sau tốt hơn.</p></div>
-  </div>
-  <div class="foot"><span>Nguồn: thống kê NAS VCB · project CapCut Nhan_Than_Hor · số liệu video T1/T2</span><span class="pg"></span></div>
 </section>
 
 <!-- ================= ROLE CHANGE ================= -->
@@ -187,7 +177,7 @@ body.overview .slide.active{border-color:var(--gold)}
   <div class="body" style="margin-top:0">
     <div class="big gold" style="font-size:160px">A</div>
     <h1 style="font-size:72px;margin-top:10px">Hệ thống <em>vận hành</em> thế nào</h1>
-    <p class="lead" style="font-size:26px">Từng bước bằng sơ đồ: toàn cảnh → nạp footage → agent hiểu clip → hành trình một kịch bản → chọn cảnh → khi thiếu cảnh → giọng HuyK → người duyệt</p>
+    <p class="lead" style="font-size:26px">Từng bước bằng sơ đồ: toàn cảnh → nạp footage → agent hiểu clip → clip dài 4K → hành trình một kịch bản → chọn cảnh → khi thiếu cảnh → giọng HuyK → người duyệt</p>
   </div>
   <div class="foot"><span>Phần A</span><span class="pg"></span></div>
 </section>
@@ -270,6 +260,41 @@ body.overview .slide.active{border-color:var(--gold)}
     </div>
   </div>
   <div class="foot"><span>Benchmark: docs/video-automation/09</span><span class="pg"></span></div>
+</section>
+
+<!-- ================= LONG 4K CLIP ================= -->
+<section class="slide tight">
+  <div class="kicker">① Media Hub · clip dài 4K 2–3 phút</div>
+  <h1>Clip 4K dài 3 phút → <em>17 cảnh ngắn</em>, chưa tới 1 phút máy</h1>
+  <div class="body">
+    <div class="flow">
+      <div class="node"><div class="n">1 · 36 giây · 0đ</div><b>Giải mã 4K đúng 1 lần</b><span>ra bản xem nhẹ + 4 hình/giây cỡ nhỏ để phân tích</span></div><div class="arr">›</div>
+      <div class="node"><div class="n">2 · 2 giây · 0đ</div><b>Đo tín hiệu</b><span>độ nét · ánh sáng · máy rung/lia · tay đang thao tác</span></div><div class="arr">›</div>
+      <div class="node"><div class="n">3 · 0đ</div><b>Cắt 2 tầng</b><span>cắt ở chỗ đổi cảnh + cắt ở nhịp nghỉ của động tác → đoạn 4–8 giây</span></div><div class="arr">›</div>
+      <div class="node warn"><div class="n">4 · 0đ</div><b>Lọc & gộp</b><span>bỏ tối, mờ, đứng hình, lia nhanh · động tác lặp chỉ giữ 2 · ~1 cảnh / 10 giây</span></div><div class="arr">›</div>
+      <div class="node ai"><div class="n">5 · 3 lần gọi · $0,003</div><b>AI gắn nhãn theo lô</b><span>1 ảnh = 6 cảnh, chỉ cảnh đã lọc mới tới AI</span></div>
+    </div>
+    <div style="margin-top:22px">
+      <div class="row" style="justify-content:space-between"><span class="muted" style="font-size:16px">Test thật: clip 4K HEVC 2:50, 841 MB, ghép từ 12 công đoạn + 4 đoạn hỏng cài sẵn + 1 đoạn quay lặp</span><span class="num muted" style="font-size:14px">0:00 ─────────── 2:50</span></div>
+      <div class="lcbar"><i class="d" style="flex:4.00"></i><i class="k" style="flex:5.25"></i><i class="k" style="flex:4.75"></i><i class="k" style="flex:4.25"></i><i class="k" style="flex:7.75"></i><i class="r" style="flex:5.25"></i><i class="k" style="flex:4.00"></i><i class="k" style="flex:6.75"></i><i class="k" style="flex:7.50"></i><i class="d" style="flex:6.50"></i><i class="r" style="flex:5.00"></i><i class="k" style="flex:4.75"></i><i class="k" style="flex:7.25"></i><i class="k" style="flex:8.00"></i><i class="o" style="flex:4.00"></i><i class="r" style="flex:3.75"></i><i class="k" style="flex:4.75"></i><i class="d" style="flex:5.50"></i><i class="o" style="flex:4.00"></i><i class="k" style="flex:5.75"></i><i class="k" style="flex:6.50"></i><i class="r" style="flex:4.75"></i><i class="k" style="flex:5.50"></i><i class="d" style="flex:6.50"></i><i class="k" style="flex:8.00"></i><i class="o" style="flex:6.00"></i><i class="o" style="flex:6.25"></i><i class="k" style="flex:5.75"></i><i class="o" style="flex:5.25"></i><i class="k" style="flex:6.75"></i></div>
+      <div class="lclegend"><span style="--c:var(--jade)">17 cảnh được giữ (4–8 giây)</span><span style="--c:var(--ruby)">loại: tối, mờ, lia nhanh, đứng hình</span><span style="--c:#c9a24f">trùng dáng (động tác lặp)</span><span style="--c:#3d3729">dùng được nhưng vượt ngân sách</span></div>
+    </div>
+    <div class="grid g3" style="margin-top:22px;gap:18px">
+      <div class="card" style="border-color:rgba(95,179,154,.45)"><h3 class="jade">Kết quả đo</h3><ul>
+        <li><b class="ink">12/12</b> công đoạn thật đều có cảnh · <b class="ink">0</b> cảnh lẫn 2 công đoạn</li>
+        <li>Đoạn hỏng lọt vào: 0,5 giây / 103 giây</li><li>Đoạn quay lặp: 4 cửa sổ → giữ 2</li>
+        <li>Bản xem 53 MB · bản 4K gốc giữ nguyên trên NAS</li></ul></div>
+      <div class="card" style="border-color:var(--gold-line)"><h3 class="gold">Chấm điểm 3 tầng</h3><ul>
+        <li><b class="ink">Máy đo</b> (0đ): nét, sáng, đang thao tác</li>
+        <li><b class="ink">Haiku nhìn</b> (≈ $0,003): vai trò, công đoạn, độ đẹp</li>
+        <li><b class="ink">Jev ra xác suất</b> (≈ $0,0003): ≥ 0,85 tự duyệt · 0,4–0,85 người duyệt · &lt; 0,4 loại</li></ul></div>
+      <div class="card"><h3>Tận dụng 4K</h3><ul>
+        <li>4K dọc: phóng cận 2× vẫn đủ nét → 1 cảnh ra 2 shot</li>
+        <li>4K ngang: tự cắt khung dọc theo vị trí tay</li>
+        <li>Bản HD chỉ cắt từ 4K <b class="ink">khi cảnh được chọn</b></li></ul></div>
+    </div>
+  </div>
+  <div class="foot"><span>Đo trên MVP (máy Mac) · chi tiết: docs/video-automation/03 §3.1–3.2</span><span class="pg"></span></div>
 </section>
 
 <!-- ================= SCRIPT JOURNEY ================= -->
@@ -643,144 +668,6 @@ body.overview .slide.active{border-color:var(--gold)}
   <div class="foot"><span>VCB Video Agent</span><span class="pg"></span></div>
 </section>
 
-<!-- ================= 10K ================= -->
-<section class="slide">
-  <div class="kicker">Cam kết 01 · 10.000 video / tháng</div>
-  <h1>10.000 video <em>khác nhau thật sự</em>: tính được, không phải hứa</h1>
-  <div class="body">
-    <div class="grid g3" style="gap:24px">
-      <div class="card"><span class="tag t-gold">① Đủ nội dung khác nhau?</span>
-        <div class="num" style="font-size:26px;line-height:1.7;margin-top:16px"><span class="gold">150</span> SKU đang bán<br>× <span class="gold">4</span> công thức A1–A4<br>× <span class="gold">4</span> ngôn ngữ<br>× <span class="gold">4</span> biến thể<br>= <b style="font-size:34px">9.600</b></div>
-        <p class="note">Mỗi biến thể khác ≥ 2/4 trục: góc kể, hook, bộ cảnh, nhạc. Cộng thêm góc kể mới từ kho viral.</p></div>
-      <div class="card"><span class="tag t-jade">② Kho đủ cảnh?</span>
-        <p style="margin-top:16px;font-size:20px;color:var(--ink)">38.000 video × ~2–3 shot = <b class="jade">~100.000 shot</b></p>
-        <p style="margin-top:10px">10.000 video × ~25 shot = 250.000 lượt dùng/tháng → mỗi shot ~2,5 lần/tháng, rải nhiều kênh, có thời gian chờ 30 ngày mỗi kênh.</p></div>
-      <div class="card"><span class="tag t-sky">③ Máy chạy kịp?</span>
-        <p style="margin-top:16px;font-size:20px;color:var(--ink)">10.000/tháng = <b class="sky">~333 video/ngày</b></p>
-        <p style="margin-top:10px">MVP render một video bản xem 720p trong ~4 giây. Bản 1080p production: <b class="ink">3 máy render</b>, đã tính dư ×3 cho bản xem thử và sửa.</p></div>
-    </div>
-    <div class="card" style="margin-top:20px;text-align:center"><p style="font-size:22px;color:var(--ink)">Máy không phải giới hạn. Giới hạn thật là <b class="gold">số phút người duyệt</b>, và đó là việc của slide tiếp theo.</p></div>
-  </div>
-  <div class="foot"><span>Giả định thiết kế · đo lại ở pilot 100 video</span><span class="pg"></span></div>
-</section>
-
-<!-- ================= CALCULATOR ================= -->
-<section class="slide">
-  <div class="kicker">Cần bao nhiêu người duyệt? (kéo để thử)</div>
-  <h1>Mô phỏng nhân sự duyệt cho <em>10.000 video</em></h1>
-  <div class="body" style="justify-content:flex-start;margin-top:24px">
-    <div class="calc">
-      <div class="card ctrl">
-        <label>Số video / tháng <output id="o_v"></output><input id="v" type="range" min="1000" max="20000" step="500" value="10000"></label>
-        <label>Tỷ lệ PASS ngay (%) <output id="o_p"></output><input id="p" type="range" min="30" max="95" step="5" value="70"></label>
-        <label>Tỷ lệ phải mở CapCut (%) <output id="o_c"></output><input id="c" type="range" min="0" max="40" step="1" value="10"></label>
-        <label>Phút duyệt 1 video PASS <output id="o_tp"></output><input id="tp" type="range" min="0.5" max="5" step="0.5" value="1.5"></label>
-        <label>Phút sửa nhanh / phút CapCut <output id="o_tf"></output><input id="tf" type="range" min="2" max="10" step="1" value="4"></label>
-        <label>% video cần người xem (theo độ tin cậy) <output id="o_s"></output><input id="s" type="range" min="20" max="100" step="5" value="100"></label>
-        <p class="note" style="margin-top:0">1 người = 6 giờ hữu ích × 22 ngày = 132 giờ/tháng. Phút CapCut = 3 × phút sửa nhanh. Dựng tay = 60 phút/video.</p></div>
-      <div class="res">
-        <div class="card" style="border-color:var(--gold-line)"><div class="big gold num" id="r_ed">5</div><div class="k">người duyệt toàn thời gian</div></div>
-        <div class="card"><div class="big ruby num" id="r_man">76</div><div class="k">editor nếu dựng tay cùng sản lượng</div></div>
-        <div class="card"><div class="big num" id="r_min">3.5</div><div class="k">phút công trung bình / video</div></div>
-        <div class="card"><div class="big jade num" id="r_save">94%</div><div class="k">giảm phút công so với dựng tay</div></div>
-        <div class="card" style="grid-column:1/-1"><p style="font-size:16px">+ cố định: 1 editor lead, 1 người duyệt sản phẩm/claim, người bản ngữ duyệt kịch bản TH/JP/EN theo kịch bản (bán thời gian).</p></div>
-      </div>
-    </div>
-  </div>
-  <div class="foot"><span>Công thức minh bạch · thay số thật sau pilot</span><span class="pg"></span></div>
-</section>
-
-<!-- ================= TEAM 100 ================= -->
-<section class="slide">
-  <div class="kicker">Đội 100 người làm gì khi máy đã dựng?</div>
-  <h1>Từ 100 người dựng tay → <em>100 người vận hành</em></h1>
-  <div class="body">
-    <div style="display:grid;grid-template-columns:1.25fr 1fr;gap:28px;align-items:start">
-      <div class="card">
-        <div class="hbar"><span>Media Hub: quay, nạp, duyệt nhãn</span><i style="width:100%"></i><b>25</b></div>
-        <div class="hbar"><span>Mở rộng: KOC khác, Đồ da, Đá quý</span><i style="width:80%"></i><b>20</b></div>
-        <div class="hbar"><span>Phân phối & phân tích hiệu quả</span><i style="width:48%"></i><b>12</b></div>
-        <div class="hbar"><span>Chiến lược nội dung & brief</span><i style="width:40%"></i><b>10</b></div>
-        <div class="hbar"><span>Sửa CapCut & video hero</span><i style="width:40%"></i><b>10</b></div>
-        <div class="hbar"><span class="ink">Duyệt G2 video</span><i style="width:32%"></i><b>8</b></div>
-        <div class="hbar"><span>Duyệt kịch bản VN · TH · JP · EN</span><i style="width:32%"></i><b>8</b></div>
-        <div class="hbar"><span>Lead, QA, vận hành hệ thống</span><i style="width:20%"></i><b>5</b></div>
-        <div class="hbar"><span>Dữ liệu sản phẩm</span><i style="width:8%"></i><b>2</b></div>
-        <p class="note">Phân bổ gợi ý cho 10.000 video/tháng, 4 ngôn ngữ. VCB tự quyết.</p></div>
-      <div class="grid" style="gap:16px">
-        <div class="card" style="border-color:var(--gold-line)"><div class="row" style="gap:14px;align-items:baseline"><span class="big gold num" style="font-size:62px">8</span><span style="font-size:20px">người duyệt G2</span></div><p style="margin-top:8px">≈ <b class="gold">18.000 video/tháng</b> năng lực duyệt (3,5 phút/video). 10k chỉ dùng hơn một nửa.</p></div>
-        <div class="card"><h3>Trần mới không phải là người</h3><p>Mà là <b class="ink">kho footage</b> và <b class="ink">số kênh phân phối</b> → nhóm lớn nhất đặt ở Media Hub: quay đúng cảnh còn thiếu.</p></div>
-        <div class="card"><h3>Duyệt theo độ tin cậy</h3><p>Mới: xem 100% · đã chứng minh: xem 30–50% · ổn định: xem mẫu 20%. Có lỗi nghiêm trọng → quay về 100%.</p></div>
-      </div>
-    </div>
-  </div>
-  <div class="foot"><span>VCB Video Agent</span><span class="pg"></span></div>
-</section>
-
-<!-- ================= FLYWHEEL ================= -->
-<section class="slide">
-  <div class="kicker">Cam kết 02 · ngày càng thông minh</div>
-  <h1>Mỗi video làm ra là <em>một bài học</em> cho video sau</h1>
-  <div class="body">
-    <div style="display:grid;grid-template-columns:1.05fr 1fr;gap:28px;align-items:center">
-      <svg viewBox="0 0 640 560" style="width:100%;height:530px" aria-label="Vòng học của hệ thống">
-        <defs><marker id="ah" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#d1ad62"/></marker></defs>
-        <circle cx="320" cy="280" r="200" fill="none" stroke="#3d3729" stroke-width="2" stroke-dasharray="6 8"/>
-        <path d="M 455 133 A 200 200 0 0 1 518 300" fill="none" stroke="#d1ad62" stroke-width="3" marker-end="url(#ah)"/>
-        <path d="M 500 380 A 200 200 0 0 1 380 470" fill="none" stroke="#d1ad62" stroke-width="3" marker-end="url(#ah)"/>
-        <path d="M 250 468 A 200 200 0 0 1 128 330" fill="none" stroke="#d1ad62" stroke-width="3" marker-end="url(#ah)"/>
-        <path d="M 126 240 A 200 200 0 0 1 200 122" fill="none" stroke="#d1ad62" stroke-width="3" marker-end="url(#ah)"/>
-        <path d="M 270 86 A 200 200 0 0 1 380 88" fill="none" stroke="#d1ad62" stroke-width="3" marker-end="url(#ah)"/>
-        <circle cx="320" cy="280" r="92" fill="#1e1b14" stroke="#d1ad62" stroke-width="2"/>
-        <text x="320" y="268" text-anchor="middle" fill="#f3ede2" font-family="Be Vietnam Pro" font-size="22" font-weight="700">Kho dữ liệu</text>
-        <text x="320" y="296" text-anchor="middle" fill="#a49b8a" font-family="Be Vietnam Pro" font-size="16">lớn dần mỗi ngày</text>
-        <g font-family="Be Vietnam Pro" font-size="17" fill="#f3ede2" font-weight="600">
-          <rect x="378" y="52" width="196" height="64" rx="12" fill="#16140f" stroke="#2e2a20"/><text x="476" y="80" text-anchor="middle">① Sản xuất</text><text x="476" y="102" text-anchor="middle" font-size="14" fill="#a49b8a" font-weight="400">10k video / tháng</text>
-          <rect x="470" y="300" width="160" height="64" rx="12" fill="#16140f" stroke="#2e2a20"/><text x="550" y="328" text-anchor="middle">② Người duyệt</text><text x="550" y="350" text-anchor="middle" font-size="14" fill="#a49b8a" font-weight="400">PASS · sửa · loại</text>
-          <rect x="220" y="470" width="200" height="64" rx="12" fill="#16140f" stroke="#2e2a20"/><text x="320" y="498" text-anchor="middle">③ Đăng & đo</text><text x="320" y="520" text-anchor="middle" font-size="14" fill="#a49b8a" font-weight="400">view · giữ chân · bình luận</text>
-          <rect x="10" y="240" width="170" height="64" rx="12" fill="#16140f" stroke="#2e2a20"/><text x="95" y="268" text-anchor="middle">④ Học & chấm lại</text><text x="95" y="290" text-anchor="middle" font-size="14" fill="#a49b8a" font-weight="400">cảnh · hook · nhạc</text>
-          <rect x="80" y="52" width="196" height="64" rx="12" fill="#16140f" stroke="#2e2a20"/><text x="178" y="80" text-anchor="middle">⑤ Kho giàu hơn</text><text x="178" y="102" text-anchor="middle" font-size="14" fill="#a49b8a" font-weight="400">viral · footage · AI</text>
-        </g>
-      </svg>
-      <div class="grid" style="gap:11px">
-        <div class="card" style="padding:15px 20px"><h3 style="font-size:19px;margin:0"><span class="gold">Nhãn đúng hơn ·</span> <span class="muted" style="font-weight:400">mỗi nhãn người sửa thành ví dụ cho agent phân loại</span></h3></div>
-        <div class="card" style="padding:15px 20px"><h3 style="font-size:19px;margin:0"><span class="gold">Chọn cảnh giống editor ·</span> <span class="muted" style="font-weight:400">mỗi lần "thay cảnh" là một cặp cảnh tệ → cảnh tốt</span></h3></div>
-        <div class="card" style="padding:15px 20px"><h3 style="font-size:19px;margin:0"><span class="gold">Hook & công thức thắng ·</span> <span class="muted" style="font-weight:400">số liệu từng thị trường quyết định lô sau</span></h3></div>
-        <div class="card" style="padding:15px 20px"><h3 style="font-size:19px;margin:0"><span class="gold">Kho viral tự lớn ·</span> <span class="muted" style="font-weight:400">video top của chính VCB thành mẫu kịch bản</span></h3></div>
-        <div class="card" style="padding:15px 20px"><h3 style="font-size:19px;margin:0"><span class="gold">Kho cảnh tự lấp ·</span> <span class="muted" style="font-weight:400">quay bổ sung đúng chỗ, AI sinh một lần dùng mãi</span></h3></div>
-      </div>
-    </div>
-  </div>
-  <div class="foot"><span>VCB Video Agent</span><span class="pg"></span></div>
-</section>
-
-<!-- ================= MATURITY ================= -->
-<section class="slide">
-  <div class="kicker">Thông minh có kiểm soát</div>
-  <h1>Càng chạy càng ít phải sửa, nhưng <em>không tự ý đổi luật</em></h1>
-  <div class="body">
-    <div class="grid g2" style="gap:30px">
-      <div class="card">
-        <h3>Mục tiêu theo thời gian <span class="tag" style="margin-left:8px">đo thực tế, không phải cam kết cứng</span></h3>
-        <div class="bars" style="margin-top:14px">
-          <div class="bar"><b>50%</b><i style="height:50%"></i><span>Pilot</span></div>
-          <div class="bar"><b>65%</b><i style="height:65%"></i><span>Tháng 3</span></div>
-          <div class="bar"><b>75%</b><i style="height:75%"></i><span>Tháng 4</span></div>
-          <div class="bar"><b>85%</b><i style="height:85%"></i><span>Tháng 6</span></div>
-          <div class="bar"><b>90%</b><i style="height:90%"></i><span>Tháng 9+</span></div>
-        </div>
-        <p class="muted" style="margin-top:14px;font-size:17px"><span class="gold">■</span> Tỷ lệ PASS ngay, không cần sửa. Đi kèm: phút duyệt mỗi video giảm từ ~4 xuống ~2, tỷ lệ phải mở CapCut dưới 5%.</p>
-      </div>
-      <div class="grid" style="gap:16px">
-        <div class="card" style="border-color:rgba(95,179,154,.45)"><h3 class="jade">Được tự học</h3><ul><li>Trọng số chọn cảnh, chọn nhạc, độ dài shot</li><li>Phân bổ hook / công thức theo thị trường</li><li>Ví dụ mẫu cho AI phân loại và viết kịch bản</li><li>Thứ tự ưu tiên quay bổ sung và sinh AI</li></ul></div>
-        <div class="card" style="border-color:rgba(217,119,107,.45)"><h3 class="ruby">Không bao giờ tự đổi</h3><ul><li>Sự thật sản phẩm, giá, chứng thư, quyền sử dụng</li><li>Lời HuyK chưa được duyệt; giới hạn AI 30%</li><li>Chính sách thương hiệu: view cao không vượt được luật</li></ul></div>
-      </div>
-    </div>
-    <p class="note">Mọi thay đổi do học đều có phiên bản, được kiểm trên bộ video chuẩn trước khi áp dụng, và quay lui được.</p>
-  </div>
-  <div class="foot"><span>VCB Video Agent</span><span class="pg"></span></div>
-</section>
-
 <!-- ================= COST ================= -->
 <section class="slide">
   <div class="kicker">Chi phí AI · 10.000 video × 4 ngôn ngữ / tháng</div>
@@ -828,27 +715,41 @@ body.overview .slide.active{border-color:var(--gold)}
 </section>
 
 <!-- ================= KPI + PREP ================= -->
-<section class="slide">
-  <div class="kicker">Đo bằng gì · VCB cần chuẩn bị gì</div>
-  <h1>Cam kết bằng <em>con số đo được</em></h1>
+<section class="slide tight">
+  <div class="kicker">Bàn giao · Research &amp; tài liệu kỹ thuật</div>
+  <h1>Bộ <em>research và tài liệu kỹ thuật</em> bàn giao cho VCB</h1>
   <div class="body">
-    <div class="grid g2" style="gap:26px">
-      <div class="card"><h3>KPI nghiệm thu pilot</h3>
-        <table style="font-size:17px;margin-top:4px"><tbody>
-          <tr><td>Phút công / video đạt chuẩn</td><td>Giảm 80–90% so với dựng tay</td></tr>
-          <tr><td>Sai SKU / claim / quyền lọt qua</td><td class="jade">0</td></tr>
-          <tr><td>PASS ngay ở pilot</td><td>≥ 50%, tăng dần lên ≥ 70%</td></tr>
-          <tr><td>Project CapCut mở được</td><td>100% video được xuất</td></tr>
-          <tr><td>Điểm biên tập (hội đồng 3 người)</td><td>≥ 4/5: đúng HuyK, nhịp tốt, hình–lời khớp</td></tr>
-          <tr><td>Footage mới sẵn sàng</td><td>≤ 24 giờ</td></tr></tbody></table></div>
-      <div class="card" style="border-color:var(--gold-line)"><h3 class="gold">VCB cần chuẩn bị</h3><ul>
-        <li>Máy Windows cài CapCut 9.3 + tài khoản Pro cho PoC</li><li>Máy chủ đặt cạnh NAS cho Media Hub</li>
-        <li>Duyệt dữ liệu 10 SKU ưu tiên theo mẫu Product Master</li><li>Quyền đọc kho nhạc bản quyền để nạp vào Studio</li>
-        <li>HuyK nghe & duyệt giọng clone; ~30 phút thu âm sạch cho bản clone chuyên nghiệp</li><li>API key dùng thử HeyGen / Veo để test so sánh</li></ul></div>
+    <div class="grid" style="grid-template-columns:1.25fr 1fr;gap:22px;align-items:start">
+      <div class="card"><h3 class="gold">Tài liệu kỹ thuật <span class="tag" style="margin-left:8px">docs/video-automation/</span></h3>
+        <div class="docs">
+          <div class="doc"><i>01</i><div><b>Tổng quan &amp; kiến trúc</b><span>4 hệ thống con, nguyên tắc thiết kế, luồng dữ liệu</span></div></div>
+          <div class="doc"><i>02</i><div><b>Thư viện footage, viral &amp; data model</b><span>Hiện trạng kho NAS, schema, Product Master</span></div></div>
+          <div class="doc"><i>03</i><div><b>VCB Media Hub</b><span>Nạp footage, index, duyệt ngoại lệ, Catalog API</span></div></div>
+          <div class="doc"><i>04</i><div><b>Pipeline sản xuất video</b><span>Brief → kịch bản → chọn cảnh → MP4, template A1–A4</span></div></div>
+          <div class="doc"><i>05</i><div><b>Timeline IR, render FFmpeg &amp; export CapCut</b><span>Một nguồn sự thật cho MP4 và project CapCut</span></div></div>
+          <div class="doc"><i>06</i><div><b>QC, vận hành, API &amp; lộ trình</b><span>Vai trò đội ~100 người, kiểm soát chất lượng, API, kế hoạch</span></div></div>
+          <div class="doc"><i>07</i><div><b>Kho nhạc, SFX, transition, effect</b><span>Nhãn, giấy phép, render được bằng FFmpeg lẫn CapCut</span></div></div>
+          <div class="doc"><i>08</i><div><b>AI Asset Studio</b><span>Sinh bổ sung bằng ElevenLabs · HeyGen · Veo · Seedance, có guardrail</span></div></div>
+          <div class="doc"><i>10</i><div><b>MVP demo: hướng dẫn chạy &amp; kịch bản demo</b><span>Chạy local, 60 clip thật của VCB</span></div></div>
+        </div></div>
+      <div style="display:grid;gap:22px">
+        <div class="card" style="border-color:rgba(127,167,217,.5)"><h3 class="sky">Research &amp; báo cáo</h3>
+          <div class="docs">
+            <div class="doc"><i>09</i><div><b>Báo cáo test AI model</b><span>Chất lượng và chi phí từng model, theo từng hoạt động</span></div></div>
+            <div class="doc"><i>PL-A</i><div><b>Phân tích project CapCut mẫu thật</b><span>Cấu trúc cut, speed, scale, transition, mức âm lượng</span></div></div>
+            <div class="doc"><i>PL-B</i><div><b>Kiểm kê kỹ thuật 38 video mẫu</b><span>ffprobe: fps, HLG 10-bit, xoay 270°, không audio</span></div></div>
+            <div class="doc"><i>PL-C</i><div><b>Bảng giá &amp; năng lực AI provider</b><span>Kiểm tra ngày 10/10/2026</span></div></div>
+          </div></div>
+        <div class="card" style="border-color:rgba(95,179,154,.45)"><h3 class="jade">Dữ liệu mẫu &amp; mã nguồn</h3>
+          <div class="docs">
+            <div class="doc"><i>CSV</i><div><b>Product Master mẫu (3 file)</b><span>Sản phẩm · facts bổ sung · câu chuyện thật</span></div></div>
+            <div class="doc"><i>BENCH</i><div><b>Dữ liệu benchmark gốc</b><span>Đề bài, đáp án, output từng model, điểm giám khảo</span></div></div>
+            <div class="doc"><i>MVP</i><div><b>Mã nguồn MVP Studio + ảnh chụp giao diện</b><span>Server, web, indexer</span></div></div>
+          </div></div>
+      </div>
     </div>
-    <div class="card" style="margin-top:18px;padding:14px 22px;border-color:rgba(95,179,154,.45)"><p style="font-size:16px"><b class="jade">Đã chốt:</b> CapCut 9.3 Windows Pro · "X" = nguồn thay thế · slot HuyK = HuyK nói (thật/AI) · được dùng footage sưu tầm · mỗi sản phẩm một bộ footage, không map chéo · Media Hub tách riêng · kho nhạc bản quyền riêng · đội ~100 người</p></div>
   </div>
-  <div class="foot"><span>VCB Video Agent</span><span class="pg"></span></div>
+  <div class="foot"><span>README.md trong docs/video-automation/ là mục lục và danh sách quyết định đã chốt với VCB</span><span class="pg"></span></div>
 </section>
 
 <!-- ================= CLOSING ================= -->
@@ -891,15 +792,6 @@ body.overview .slide.active{border-color:var(--gold)}
   document.addEventListener('touchend',e=>{ if(x0===null) return; const dx=e.changedTouches[0].clientX-x0; if(Math.abs(dx)>50) go(i+(dx<0?1:-1)); x0=null; });
   addEventListener('resize',fit); addEventListener('hashchange',()=>{const n=parseInt(location.hash.slice(1)); if(n&&n-1!==i) go(n-1);});
   fit(); go((parseInt(location.hash.slice(1))||1)-1);
-
-  // reviewer-capacity calculator: review minutes are the bottleneck, not rendering
-  const $=id=>document.getElementById(id), fmt=n=>n.toLocaleString('vi-VN');
-  function calc(){ const V=+$('v').value,P=+$('p').value/100,C=+$('c').value/100,tp=+$('tp').value,tf=+$('tf').value,S=+$('s').value/100;
-    const F=Math.max(0,1-P-C), tc=tf*3, per=S*(P*tp+F*(tp+tf)+C*(tp+tc)), hours=V*per/60;
-    $('o_v').textContent=fmt(V); $('o_p').textContent=Math.round(P*100)+'%'; $('o_c').textContent=Math.round(C*100)+'%';
-    $('o_tp').textContent=tp; $('o_tf').textContent=tf+' / '+tc; $('o_s').textContent=Math.round(S*100)+'%';
-    $('r_ed').textContent=Math.ceil(hours/132); $('r_man').textContent=fmt(Math.ceil(V/132)); $('r_min').textContent=per.toFixed(1); $('r_save').textContent=Math.round((1-per/60)*100)+'%'; }
-  ['v','p','c','tp','tf','s'].forEach(id=>$(id).addEventListener('input',calc)); calc();
 })();
 </script>
 </body>

@@ -29,7 +29,7 @@ Tùy chọn bật AI thật (không bắt buộc cho demo):
 
 ## 2b. Giao diện Studio (bố cục kiểu CapCut)
 
-Ảnh chụp: `assets/mvp-screens/01…08`. Slide trình bày khách giải thích từng vùng: `VCB_Video_Agent_Slides.html` slide 16–22 (bản PDF: `VCB_Video_Agent_Slides.pdf`).
+Ảnh chụp: `assets/mvp-screens/01…08`. Slide trình bày khách giải thích từng vùng: `VCB_Video_Agent_Slides.html` slide 17–23 (bản PDF: `VCB_Video_Agent_Slides.pdf`).
 
 | Vùng | Nội dung & tùy chọn |
 |---|---|
@@ -47,6 +47,9 @@ Deep link để mở đúng trạng thái: `/?job=<id>&part=p3&shot=1&lib=footag
 mvp/
 ├── indexer/                         # = Media Hub (03), chạy offline 1 lần
 │   ├── build_media_index.py         # ffprobe, proxy 720×1280 SDR (tone-map HLG, xoay), thumbnail, contact sheet
+│   ├── long_clip_signals.py         # clip > 30s: giải mã 4K 1 lần + tín hiệu từng khung (nét, sáng, máy, tay, cắt cảnh)
+│   ├── long_clip_segmenter.py       # cửa sổ 4–8s, chấm q_cpu, gộp trùng, ngân sách, proxy 9:16, batch sheet (03 §3.1)
+│   │                                #   chạy thử: uv run --project mvp python mvp/indexer/long_clip_segmenter.py <video.mov>
 │   ├── write_agent_task_files.py    # sinh đề bài cho swarm agent gắn nhãn + bộ benchmark
 │   ├── merge_tags_into_catalog.py   # gộp nhãn AI + tên file → data/catalog.json
 │   ├── score_model_benchmarks.py    # chấm benchmark Haiku/Sonnet/Opus

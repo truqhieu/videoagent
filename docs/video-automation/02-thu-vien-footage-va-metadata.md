@@ -169,6 +169,9 @@ CREATE TABLE segments (
   asset_id      uuid REFERENCES assets(id),
   src_in_ms     int NOT NULL, src_out_ms int NOT NULL,
   best_in_ms    int, best_out_ms int,       -- khoảng "đẹp nhất" (động tác rõ, nét)
+  split_method  text,                       -- whole | hard_cut | soft | sentence (clip dài, xem 03 §3.1)
+  crop_x        real DEFAULT 0.5,           -- tâm khung dọc 9:16 khi nguồn quay ngang (0..1)
+  scores        jsonb,                      -- {"q_cpu":..,"p_usable":..,"p_role":{..},"p_step":{..},"premium":..} (03 §3.2)
   roles         jsonb NOT NULL,             -- [{"role":"craft","conf":0.93,"by":"filename"}, ...]
   craft_step    text, craft_order int,
   tags          jsonb,                      -- nhãn mục 3.3
